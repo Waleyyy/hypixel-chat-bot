@@ -1,16 +1,17 @@
 # Hypixel Chat Bot
 
-A Minecraft bot that monitors Hypixel guild chat and responds to player statistics requests via private messages.
+A lightweight Minecraft bot that monitors Hypixel guild chat and responds to player statistics requests with concise, essential stats.
 
 ## Features
 
-- 🤖 **Auto-connects** to Hypixel using your Minecraft account
+- 🤖 **Auto-connects** to Hypixel using Microsoft authentication
 - 👥 **Guild chat monitoring** for stats commands
-- 📊 **Player statistics** for BedWars, SkyWars, and Duels
-- 💬 **Private message responses** to avoid spam
+- 📊 **Essential player statistics** for BedWars, SkyWars, and Duels
+- 💬 **Smart message delivery** - Private messages with guild chat fallback
 - 🔄 **Auto-reconnection** with configurable retry logic
-- 🛡️ **Error handling** and logging for stability
-- ⚙️ **Configurable** command prefix and settings
+- ⚙️ **Toggle between** private messages and guild chat responses
+- 🛡️ **Anti-spam protection** with short, clean message format
+- 📝 **Simple commands** - Easy to use for guild members
 
 ## Prerequisites
 
@@ -49,6 +50,7 @@ Before running this bot, you need:
    MINECRAFT_PASSWORD=your_password
    HYPIXEL_API_KEY=your_api_key_here
    BOT_USERNAME=your_minecraft_username
+   GUILD_NAME=your_guild_name
    ```
 
 ## Configuration
@@ -57,19 +59,23 @@ Edit your `.env` file with the following settings:
 
 ### Required Settings
 ```env
-# Your Minecraft account credentials
+# Your Minecraft account credentials (Microsoft account recommended)
 MINECRAFT_EMAIL=your_minecraft_email@example.com
 MINECRAFT_PASSWORD=your_minecraft_password
 
 # Your Hypixel API key (get from https://api.hypixel.net/)
 HYPIXEL_API_KEY=your_hypixel_api_key_here
 
-# Your bot's Minecraft username
+# Your bot's Minecraft username and guild
 BOT_USERNAME=your_bot_minecraft_username
+GUILD_NAME=your_guild_name
 ```
 
 ### Optional Settings
 ```env
+# Message delivery method (true = private messages, false = guild chat)
+USE_PRIVATE_MESSAGES=true
+
 # Command prefix (default: !)
 COMMAND_PREFIX=!
 
@@ -77,11 +83,8 @@ COMMAND_PREFIX=!
 RECONNECT_DELAY=5000
 MAX_RECONNECT_ATTEMPTS=10
 
-# Debug mode
+# Debug mode (shows all messages)
 DEBUG=false
-
-# Microsoft account authentication (if using Microsoft account)
-MINECRAFT_AUTH=microsoft
 ```
 
 ## Usage
@@ -93,75 +96,81 @@ MINECRAFT_AUTH=microsoft
 
 2. **Guild members can now use stats commands**
    ```
-   !stats bw waleyy          # BedWars stats for player "waleyy"
-   !stats sw username        # SkyWars stats
-   !stats duels playername   # Duels stats
+   !bw waleyy               # BedWars stats for "waleyy"
+   !bw waleyy solo          # BedWars solo mode stats
+   !sw username             # SkyWars stats  
+   !duels playername        # Duels stats
+   
+   # Alternative format (backwards compatibility):
+   !stats bw waleyy         # Same as !bw waleyy
    ```
 
-3. **The bot will respond via private message** with formatted statistics
+3. **Toggle response method** (if needed)
+   ```
+   !toggle                  # Switch between private messages and guild chat
+   ```
+
+4. **The bot responds with short, clean stats** to avoid spam detection
 
 ## Supported Commands
 
-| Command | Description | Examples |
-|---------|-------------|----------|
-| `!stats <game> <player>` | Overall game statistics | `!stats bw Technoblade` |
-| `!stats <game> <mode> <player>` | Specific mode statistics | `!stats bw solo Dream` |
-| `!stats general <player>` | General Hypixel player info | `!stats general Sapnap` |
+### **New Command Format (Primary):**
+| Command | Description | Example Output |
+|---------|-------------|----------------|
+| `!bw <player>` | BedWars overall stats | `Waleyy BW: 677⭐ WLR:0.41 FKDR:1.48 WS:0` |
+| `!bw <player> <mode>` | BedWars mode stats | `Waleyy BW Solo: 677⭐ WLR:0.22 FKDR:1.23` |
+| `!sw <player>` | SkyWars overall stats | `Waleyy SW: 25⋆ WLR:1.50` |  
+| `!duels <player>` | Duels overall stats | `Waleyy Duels: WLR:2.00` |
 
-### **BedWars Statistics (Statsify-level detail):**
-- **Overall**: Star level, coins, winstreak, games played, averages, resource collection
-- **Solo**: Individual 8v8v8v8v8v8v8v8 stats with items purchased and resources
-- **Doubles**: 4v4v4v4 team stats with detailed breakdowns  
-- **Threes**: 3v3v3v3 mode with comprehensive metrics
-- **Fours**: 4v4 classic mode with full statistics
+### **Legacy Format (Supported):**
+| Command | Description | 
+|---------|-------------|
+| `!stats bw <player>` | Same as `!bw <player>` |
+| `!stats sw <player>` | Same as `!sw <player>` |
+| `!stats duels <player>` | Same as `!duels <player>` |
 
-### **SkyWars Statistics:**
-- **Overall**: Star level, coins, souls, experience, win rate, accuracy stats
-- **Solo Normal/Insane**: Individual queue statistics
-- **Team Normal/Insane**: Team-based game modes
-- **Detailed metrics**: Chests opened, void kills, mob kills, time played
+### **Special Commands:**
+| Command | Description |
+|---------|-------------|
+| `!toggle` or `!togglepm` | Switch between private messages and guild chat |
 
-### **Duels Statistics:**
-- **Overall**: Division title, winstreaks, accuracy, damage stats, health regeneration
-- **UHC**: Golden apples eaten, health regenerated
-- **Classic**: Damage dealt, bow hits
-- **Bow**: Shot accuracy and hit statistics  
-- **OP**: Healing potions used, damage metrics
-- **SkyWars**: Blocks placed, enderpearls thrown
-- **Sumo**: Melee accuracy and hit/swing ratios
+### **Supported Game Modes:**
 
-### **General Player Information:**
-- Rank, level, achievement points, karma
-- Guild information, online status
-- First/last login dates, most played game
-- Recent games and network experience
+**BedWars**: `solo`, `doubles`, `threes`, `fours`
+**SkyWars**: `solo`, `team`, `ranked`  
+**Duels**: Various modes (auto-detected)
 
-### **Comprehensive Data (Like Statsify):**
-✅ **Star levels and prestige colors**  
-✅ **Coins, experience, and resources**  
-✅ **Winstreaks (current and best)**  
-✅ **Averages per game and ratios**  
-✅ **Accuracy statistics (bow, melee)**  
-✅ **Time played and activity metrics**  
-✅ **Items purchased and collected**  
-✅ **Health/damage statistics**  
-✅ **Mode-specific unique stats**
+## Key Statistics Displayed
 
-## Statistics Displayed
+### **BedWars**
+- ⭐ **Star Level** (automatically calculated)
+- 🏆 **W/L Ratio** and raw wins/losses  
+- ⚔️ **Final K/D Ratio** and final kills/deaths
+- 🔥 **Win Streak** (current)
+- 🎯 **Mode-specific** stats for solo, doubles, threes, fours
 
-### BedWars
-- Wins, Losses, W/L Ratio
-- Kills, Deaths, K/D Ratio  
-- Final Kills, Final Deaths, Final K/D Ratio
-- Beds Broken, Beds Lost, Bed Break Ratio
+### **SkyWars**  
+- ⋆ **Star Level** with prestige
+- 🏆 **W/L Ratio** and raw wins/losses
+- 🎯 **Mode-specific** stats for solo, teams, ranked
 
-### SkyWars
-- Wins, Losses, W/L Ratio
-- Kills, Deaths, K/D Ratio
+### **Duels**
+- 🏆 **W/L Ratio** and raw wins/losses  
+- 🎯 **Mode-specific** stats (auto-detected)
 
-### Duels
-- Wins, Losses, W/L Ratio
-- Kills, Deaths, K/D Ratio
+## Message Delivery System
+
+The bot uses a **smart delivery system**:
+
+1. **Private Messages** (default) - Sends stats via `/msg` 
+2. **Guild Chat Fallback** - If private messages fail, sends to guild chat
+3. **Toggle Command** - Use `!toggle` to switch between modes
+4. **Anti-Spam** - Short message format to avoid Hypixel's spam detection
+
+### Why Short Messages?
+Hypixel blocks messages that look like spam. The bot uses a condensed format:
+- ✅ `Waleyy BW: 677⭐ WLR:0.41 FKDR:1.48 WS:0`
+- ❌ `Waleyy's BedWars [677★] | W/L: 2720/6716 (0.41) | ...` (too long, gets blocked)
 
 ## Security Notes
 
@@ -176,15 +185,22 @@ MINECRAFT_AUTH=microsoft
 
 ### Common Issues
 
-**Bot won't connect:**
-- Check your Minecraft credentials
-- Ensure your account has access to multiplayer
-- Verify you're not already logged in elsewhere
+**Bot won't send messages:**
+- Check if `USE_PRIVATE_MESSAGES=true` in your `.env`
+- Try `!toggle` command to switch to guild chat mode
+- Hypixel may be blocking private messages from new accounts
+- Enable `DEBUG=true` to see if messages are being blocked
 
-**"Invalid session" errors:**
-- Wait a few minutes between connection attempts
-- Try using Microsoft authentication if available
-- Restart the bot if the session expires
+**"Blocked message containing lobby command":**
+- This is Hypixel's anti-spam system
+- The bot automatically uses shorter messages to avoid this
+- Try switching to guild chat mode with `!toggle`
+
+**Commands not working:**
+- Ensure the bot is in the correct guild
+- Check that guild chat is enabled
+- Verify command format: `!bw player` or `!stats bw player`
+- Bot needs to be online and connected to respond
 
 **API errors:**
 - Verify your Hypixel API key is correct
@@ -196,14 +212,28 @@ MINECRAFT_AUTH=microsoft
 - Verify guild chat permissions
 - Check that the bot has successfully joined the server
 
-### Debug Mode
+## Example Usage
 
-Enable debug mode to see detailed logging:
-```env
-DEBUG=true
+### **Quick Stats Check:**
+```
+[Guild] Player1: !bw Technoblade
+[VIP] YourBot: Technoblade BW: 2800⭐ WLR:15.2 FKDR:45.3 WS:23
+
+[Guild] Player2: !sw Waleyy  
+[VIP] YourBot: Waleyy SW: 89⋆ WLR:4.5
+
+[Guild] Player3: !bw Hypixel solo
+[VIP] YourBot: Hypixel BW Solo: 1200⭐ WLR:3.2 FKDR:12.1
 ```
 
-This will show all chat messages and API requests for troubleshooting.
+### **Toggle Response Mode:**
+```
+[Guild] Player: !toggle
+[VIP] YourBot: Bot response mode changed to guild chat
+
+[Guild] Player: !bw waleyy
+[Guild] [VIP] YourBot: Player: waleyy BW: 677⭐ WLR:0.41 FKDR:1.48 WS:0
+```
 
 ## Development
 
@@ -223,9 +253,19 @@ hypixel-chat-bot/
 
 To add support for new game modes:
 
-1. Add a new case in `getPlayerStats()` method
+1. Add a new case in `handleStatsCommand()` method
 2. Create a formatting function like `formatBedWarsStats()`
-3. Update the README documentation
+3. Keep messages short to avoid spam detection
+4. Update the README documentation
+
+### Debug Mode
+
+Enable debug mode to see detailed logging:
+```env
+DEBUG=true
+```
+
+This will show all chat messages, API requests, and delivery attempts.
 
 ### Contributing
 
@@ -243,9 +283,10 @@ This project is licensed under the MIT License. See LICENSE file for details.
 
 This bot is for educational purposes. Make sure to:
 - Follow Hypixel's rules and terms of service
-- Don't spam or abuse the API
-- Be respectful to other players
-- Use the bot responsibly
+- Don't spam commands or abuse the API  
+- Be respectful to other players and guild members
+- Use the bot responsibly and considerately
+- Don't use on your main account - use a dedicated bot account
 
 ## Support
 
