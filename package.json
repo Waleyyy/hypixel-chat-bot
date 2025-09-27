@@ -1,0 +1,30 @@
+{
+  "name": "hypixel-chat-bot",
+  "version": "1.0.0",
+  "description": "A Minecraft bot that monitors Hypixel guild chat and responds to stats requests",
+  "main": "src/bot.js",
+  "scripts": {
+    "start": "node src/bot.js",
+    "dev": "DEBUG=true node src/bot.js",
+    "setup": "node -e \"console.log('Please run setup.bat on Windows or setup.sh on Linux/Mac')\"",
+    "help": "node -e \"console.log('\\n📖 Hypixel Chat Bot Help:\\n\\n1. Edit your .env file with credentials\\n2. Run npm start to launch the bot\\n3. Guild members can use: !stats bw <player>\\n\\nFor more help, see README.md\\n')\""
+  },
+  "keywords": [
+    "minecraft",
+    "hypixel",
+    "bot",
+    "guild",
+    "stats"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "hypixel-api-reborn": "^11.3.7",
+    "mineflayer": "^4.17.0",
+    "prismarine-auth": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
